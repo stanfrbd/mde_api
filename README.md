@@ -39,9 +39,9 @@ Then edit the config with the good values.
 
 | Secret | Explaination |
 |----------|--------------|
-|`tenantId`| the display name of your company |
+|`tenantId`| Microsoft Tenant ID (?tid=... in MDE console URL) |
 |`appId`| Called `clientId` sometimes |
-|`appSecret`| Your secret |
+|`appSecret`| Your App / Client secret |
 
 ```
 {

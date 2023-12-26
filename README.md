@@ -89,5 +89,5 @@ Successfully created 2023-12-21-15_47_24-mde-api-results.xlsx
 
 If the `secrets.json` is not properly filled.
 ```
-General error: HTTP error: 401 check your config file and API Token
+General error: HTTP error: check your secrets file and App Registration.
 ```

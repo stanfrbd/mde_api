@@ -106,7 +106,7 @@ def export_to_excel(data):
 def read_secrets():
     with open('secrets.json') as f:
         secrets = json.load(f)
-    if not (key in secrets for key in ['tenantId', 'appId', 'appSecret', 'proxyUrl']):
+    if not (key in secrets for key in ['tenantId', 'appId', 'appSecret']):
         raise ValueError('Error: Invalid secrets file')
     return secrets
 

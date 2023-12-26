@@ -32,7 +32,7 @@ now = datetime.now()
 today = now.strftime("%Y-%m-%d-%H_%M_%S")
 
 def export_to_csv(data):
-    filename = today + "mde-api-results.csv"
+    filename = today + "-mde-api-results.csv"
     with open(filename, "a") as f:
         f.write("machine,os,sensor_status,onboarding_status,verification")
         for row in data:

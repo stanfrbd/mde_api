@@ -42,7 +42,7 @@ Then edit the config with the good values.
 |`tenantId`| Microsoft Tenant ID (?tid=... in MDE console URL) |
 |`appId`| Called `clientId` sometimes |
 |`appSecret`| Your App / Client secret |
-|`proxyUrl`| Your proxy if needed |
+|`proxyUrl`| Your proxy if needed - leave blank if not |
 
 ```
 {

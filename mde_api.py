@@ -24,6 +24,8 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+# disable ssl warning in case of proxy like Zscaler which breaks ssl...
+requests.packages.urllib3.disable_warnings()
 
 # Current date
 now = datetime.now()
@@ -98,7 +100,7 @@ def export_to_excel(data):
 
     # Save the workbook
     wb.save(filename)
-    print("Successfully created {}.".format(filename))
+    print("Successfully created {}".format(filename))
 
 # Read secrets from "secrets.json"
 def read_secrets():

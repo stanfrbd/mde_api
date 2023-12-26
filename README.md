@@ -55,14 +55,23 @@ Then edit the config with the good values.
 
 ## Execute the script
 
+> Windows
+
 ```
 PS C:\Users\Me\Test> python mde_api.py machines
 ```
 
-or
+> Linux
 
 ```
-python3 mde_api.py machines
+$ python3 mde_api.py machines
+```
+
+> Linux  
+
+```
+$ chmod +x mde_api.py
+$ ./mde_api.py machines
 ```
 
 ## Output

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Stanislas M. 2023-12-21
+# Stanislas M. 2023-12-26
 
 """
 usage: mde_api.py [-h] {machines,token}
@@ -32,7 +32,7 @@ today = now.strftime("%Y-%m-%d-%H_%M_%S")
 def export_to_csv(data):
     filename = today + "mde-api-results.csv"
     with open(filename, "a") as f:
-        f.write("machine,os,sensor_status,onboarding_status")
+        f.write("machine,os,sensor_status,onboarding_status,verification")
         for row in data:
             f.write(",".join(row) + "\n")
 
@@ -42,7 +42,7 @@ def export_to_excel(data):
     ws = wb.active
 
     # Set file headers
-    ws.append(["machine", "os", "sensor_status", "onboarding_status"])
+    ws.append(["machine", "os", "sensor_status", "onboarding_status", "verification"])
 
     # Define conditional formatting colors
     green_fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
@@ -70,10 +70,15 @@ def export_to_excel(data):
             row[3].fill = green_fill
         elif row[3].value.startswith("Unsupported"):
             row[3].fill = red_fill
-
+        
+        # Verification (column E)
+        if row[4].value.startswith("NotFullyOnboarded"):
+            row[4].fill = orange_fill
+        elif row[4].value.startswith("FullyOnboarded"):
+            row[4].fill = green_fill
 
     # Add table with filters
-    table = Table(displayName="ResultsTable", ref="A1:D{}".format(ws.max_row))
+    table = Table(displayName="ResultsTable", ref="A1:E{}".format(ws.max_row))
     table_style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False, showLastColumn=False, showRowStripes=True, showColumnStripes=False)
     table.tableStyleInfo = table_style
     ws.add_table(table)
@@ -99,14 +104,14 @@ def export_to_excel(data):
 def read_secrets():
     with open('secrets.json') as f:
         secrets = json.load(f)
-    if not all(key in secrets for key in ['tenantId', 'appId', 'appSecret']):
+    if not (key in secrets for key in ['tenantId', 'appId', 'appSecret', 'proxyUrl']):
         raise ValueError('Error: Invalid secrets file')
     return secrets
 
 # Make Post request to get AAD Token
 def get_token(secrets):
 
-    url = "https://login.microsoftonline.com/%s/oauth2/token" % (secrets['tenantId'])
+    url = "https://login.microsoftonline.com/{}/oauth2/token".format(secrets['tenantId'])
 
     resourceAppIdUri = 'https://api.securitycenter.microsoft.com'
 
@@ -116,8 +121,11 @@ def get_token(secrets):
         'client_secret' : secrets['appSecret'],
         'grant_type' : 'client_credentials'
     }
+
+    proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
+
     try:
-        response = requests.post(url, data=body)
+        response = requests.post(url, data=body, proxies=proxies, verify=False)
         json_response = json.loads(response.content)
     except Exception as err:
         print("Error: " + str(err))
@@ -135,18 +143,21 @@ def list_alerts():
 # List Windows Servers onboarding status (sensor and onboarding)
 def get_server_onboarding_status():
 
-    token = get_token(read_secrets())
+    secrets = read_secrets()
+    token = get_token(secrets)
 
     headers = { 
         'Content-Type' : 'application/json',
         'Accept' : 'application/json',
-        'Authorization' : "Bearer " + token
+        'Authorization' : "Bearer {}".format(token)
     }
+
+    proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
 
     # url = "https://api.securitycenter.windows.com/api/machines"
     # filter for Windows Servers only
     url = "https://api.securitycenter.windows.com/api/machines?$filter=startswith(osPlatform,'WindowsServer')"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, proxies=proxies, verify=False)
     json_response = json.loads(response.content)
     with open("machines.json", "w") as f:
         f.write(response.text)
@@ -164,28 +175,29 @@ def get_server_onboarding_status():
     for machine in json_response["value"]:
         #if machine["osPlatform"].__contains__("WindowsServer"):
         # print("{},{},{},{}".format(machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"]))
-    
-        api_results.append([machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"]])
 
         if machine["healthStatus"] == "Active" and machine["onboardingStatus"] == "Onboarded":
+            verification = "FullyOnboarded"
             cpt_active_onboarded += 1
 
-        if machine["onboardingStatus"] == "CanBeOnboarded":
+        elif machine["onboardingStatus"] == "CanBeOnboarded":
+            verification = "NotFullyOnboarded"
             cpt_canbeonboarded += 1
         
-        if machine["healthStatus"] == "Inactive":
+        elif machine["healthStatus"] == "Inactive":
+            verification = "NotFullyOnboarded"
             cpt_inactive += 1
+        
+        else:
+           verification = "NotFullyOnboarded" 
 
         cpt_api_results += 1
+
+        api_results.append([machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"], verification])
 
     print("{} fully onboarded, {} can be onboarded, {} inactive.".format(cpt_active_onboarded, cpt_canbeonboarded, cpt_inactive))
     print("Processed {} API results.".format(cpt_api_results))
     export_to_excel(api_results)
-    
-
-def list_users():
-    # Code to list users
-    pass
 
 def show_token():
     print("\nHere is your JWT token, test it here: https://jwt.ms/\n")
@@ -206,4 +218,3 @@ if __name__ == '__main__':
     except Exception as err:
         print("General error: " + str(err) + " check your secrets file and App Registration.") 
         exit(1)
-

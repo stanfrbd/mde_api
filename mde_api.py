@@ -148,6 +148,32 @@ def list_alerts():
     # Code to list alerts
     pass
 
+# Offboard a machine using its ID
+def offboard_machine(machine_id):
+    secrets = read_secrets()
+    token = get_token(secrets)
+
+    headers = { 
+        'Content-Type': 'application/json',
+        'Accept' :'application/json',
+        'Authorization': "Bearer {}".format(token)
+    }
+
+    body = {
+        'Comment': 'Offboard machine by automation'
+    }
+
+    proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
+
+    url = "https://api.securitycenter.microsoft.com/api/machines/{}/offboard".format(machine_id)
+    response = requests.post(url, data=body, headers=headers, proxies=proxies, verify=False)
+    json_response = json.loads(response.content)
+
+    with open("offboard.json", "w") as f:
+        f.write(response.text)
+    
+    print(json_response)
+
 # List Windows Servers onboarding status (sensor and onboarding)
 def get_server_onboarding_status():
 
@@ -223,15 +249,77 @@ def show_token():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='List machines or token')
-    parser.add_argument('action', choices=['machines', 'token'], help='Action to perform')
+    parser = argparse.ArgumentParser(description='List machines, offboard or token')
+    
+    subparsers = parser.add_subparsers(dest='command')
+
+    # Create the parser for the "token" command
+    token_parse = subparsers.add_parser('token', help='Get token')
+
+    # create the parser for the "machines" command
+    machines_parser = subparsers.add_parser('machines', help='Perform actions on machines')
+    machines_subparsers = machines_parser.add_subparsers(dest='subcommand')
+
+    # create the argument for the "report" command
+    machines_subparsers.add_parser('report', help='Generate Excel report')
+
+    # create the parser for the "offboard" command
+    offboard_parser = machines_subparsers.add_parser('offboard', help='Offboard machine')
+    offboard_parser.add_argument('machineid', help='Machine ID')
+
+    # create the parser for the "isolate" command
+    isolate_parser = machines_subparsers.add_parser('isolate', help='Isolate machine')
+    isolate_parser.add_argument('machineid', help='Machine ID')
+
+    # create the parser for the "indicators" command
+    indicators_parser = subparsers.add_parser('indicators', help='Perform actions on indicators')
+    indicators_subparsers = indicators_parser.add_subparsers(dest='subcommand')
+
+    # create the parser for the "add" command
+    add_parser = indicators_subparsers.add_parser('add', help='Add an indicator')
+    add_parser.add_argument('indicator', help='Indicator')
+
+    # create the parser for the "vulnerabilities" command
+    vulnerabilities_parser = subparsers.add_parser('vulnerabilities', help='Perform actions on vulnerabilities')
+    vulnerabilities_subparsers = vulnerabilities_parser.add_subparsers(dest='subcommand')
+
+    # create the parser for the "get_devices" command
+    get_devices_parser = vulnerabilities_subparsers.add_parser('get_devices', help='Get devices for a CVE')
+    get_devices_parser.add_argument('cveid', help='CVE ID')
+
+    # create the parser for the "users" command
+    users_parser = subparsers.add_parser('users', help='Perform actions on users')
+    users_subparsers = users_parser.add_subparsers(dest='subcommand')
+
+    # create the parser for the "list" command
+    list_parser = users_subparsers.add_parser('list', help='List all users')
+
+    # create the parser for the "get" command
+    get_parser = users_subparsers.add_parser('get', help='Get a user')
+    get_parser.add_argument('userUpn', help='User UPN')
+
+    # create the parser for the "software" command
+    software_parser = subparsers.add_parser('software', help='Perform actions on software')
+    software_subparsers = software_parser.add_subparsers(dest='subcommand')
+
     args = parser.parse_args()
+
     try: 
-        if args.action == 'machines':
-            get_server_onboarding_status()
+        if args.command == 'machines':
+            if args.subcommand == 'list':
+                print("Listing all machines...")
+            elif args.subcommand == 'offboard':
+                print(f"Offboarding machine with ID: {args.machineid}")
+                offboard_machine(args.machineid)
+            elif args.subcommand == 'report':
+                get_server_onboarding_status()
+            elif args.subcommand == 'isolate':
+                print(f"Isolating machine with ID: {args.machineid}")
         
-        elif args.action == 'token':
+        elif args.command == 'token':
             show_token()
+        
+        
     except Exception as err:
         print("General error: " + str(err) + " check your secrets file and App Registration.") 
         exit(1)

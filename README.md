@@ -6,6 +6,8 @@ For a better understanding, refer to the official Microsoft Defender for Endpoin
 
 ## Install dependencies
 
+You might want to create a [`venv`](https://docs.python.org/3/library/venv.html) before installing the dependencies.
+
 ```
 pip install -r requirements.txt
 ```

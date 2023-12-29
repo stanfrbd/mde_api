@@ -70,6 +70,8 @@ def export_to_excel(data):
             row[3].fill = orange_fill
         elif row[3].value.startswith("Onboarded"):
             row[3].fill = green_fill
+        elif row[3].value.startswith("InsufficientInfo"):
+            row[3].fill = light_orange_fill
         elif row[3].value.startswith("Unsupported"):
             row[3].fill = red_fill
         
@@ -78,6 +80,10 @@ def export_to_excel(data):
             row[4].fill = orange_fill
         elif row[4].value.startswith("FullyOnboarded"):
             row[4].fill = green_fill
+        elif row[4].value.startswith("InsufficientInfo"):
+            row[4].fill = light_orange_fill
+        elif row[4].value.startswith("Unsupported"):
+            row[4].fill = red_fill
 
     # Add table with filters
     table = Table(displayName="ResultsTable", ref="A1:E{}".format(ws.max_row))
@@ -174,6 +180,7 @@ def get_server_onboarding_status():
     cpt_canbeonboarded = 0
     cpt_inactive = 0
     cpt_unsupported = 0
+    cpt_insufficientinfo = 0
     for machine in json_response["value"]:
         #if machine["osPlatform"].__contains__("WindowsServer"):
         # print("{},{},{},{}".format(machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"]))
@@ -186,6 +193,14 @@ def get_server_onboarding_status():
             verification = "NotFullyOnboarded"
             cpt_canbeonboarded += 1
         
+        elif machine["onboardingStatus"] == "Unsupported":
+            verification = "Unsupported"
+            cpt_unsupported += 1
+        
+        elif machine["onboardingStatus"] == "InsufficientInfo":
+            verification = "InsufficientInfo"
+            cpt_insufficientinfo += 1
+        
         elif machine["healthStatus"] == "Inactive":
             verification = "NotFullyOnboarded"
             cpt_inactive += 1
@@ -197,7 +212,7 @@ def get_server_onboarding_status():
 
         api_results.append([machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"], verification])
 
-    print("{} fully onboarded, {} can be onboarded, {} inactive.".format(cpt_active_onboarded, cpt_canbeonboarded, cpt_inactive))
+    print("{} fully onboarded, {} can be onboarded, {} unsupported, {} no info, {} inactive.".format(cpt_active_onboarded, cpt_canbeonboarded, cpt_unsupported, cpt_insufficientinfo, cpt_inactive))
     print("Processed {} API results.".format(cpt_api_results))
     export_to_excel(api_results)
 

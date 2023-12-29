@@ -1,0 +1,5 @@
+*.json
+*.csv
+*.xlsx
+.env/
+*test*

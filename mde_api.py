@@ -3,13 +3,18 @@
 # Stanislas M. 2023-12-26
 
 """
-usage: mde_api.py [-h] {machines,token}
+usage: mde_api.py [-h] {token,machines,indicators,vulnerabilities,users,software} ...
 
-List onboarded machines or token
+List machines, offboard or token
 
 positional arguments:
-  {machines,token}
-                        Action to perform
+  {token,machines,indicators,vulnerabilities,users,software}
+    token               Get token
+    machines            Perform actions on machines
+    indicators          Perform actions on indicators
+    vulnerabilities     Perform actions on vulnerabilities
+    users               Perform actions on users
+    software            Perform actions on software
 
 options:
   -h, --help            show this help message and exit
@@ -124,10 +129,10 @@ def get_token(secrets):
     resourceAppIdUri = 'https://api.securitycenter.microsoft.com'
 
     body = {
-        'resource' : resourceAppIdUri,
-        'client_id' : secrets['appId'],
-        'client_secret' : secrets['appSecret'],
-        'grant_type' : 'client_credentials'
+        'resource': resourceAppIdUri,
+        'client_id': secrets['appId'],
+        'client_secret': secrets['appSecret'],
+        'grant_type': 'client_credentials'
     }
 
     proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
@@ -155,24 +160,29 @@ def offboard_machine(machine_id):
 
     headers = { 
         'Content-Type': 'application/json',
-        'Accept' :'application/json',
+        'Accept':'application/json',
         'Authorization': "Bearer {}".format(token)
     }
 
     body = {
-        'Comment': 'Offboard machine by automation'
+        'Comment': 'Offboard machine by automation',
     }
 
     proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
 
     url = "https://api.securitycenter.microsoft.com/api/machines/{}/offboard".format(machine_id)
-    response = requests.post(url, data=body, headers=headers, proxies=proxies, verify=False)
-    json_response = json.loads(response.content)
+
+    try:
+        response = requests.post(url, json=body, headers=headers, proxies=proxies, verify=False)
+        json_response = json.loads(response.content)
+    
+    except Exception as err:
+        print("Unable to proceed to offboarding request: {}".format(str(err)))
 
     with open("offboard.json", "w") as f:
         f.write(response.text)
     
-    print(json_response)
+    print(json.dumps(json_response, indent=4))
 
 # List Windows Servers onboarding status (sensor and onboarding)
 def get_server_onboarding_status():
@@ -181,9 +191,9 @@ def get_server_onboarding_status():
     token = get_token(secrets)
 
     headers = { 
-        'Content-Type' : 'application/json',
-        'Accept' : 'application/json',
-        'Authorization' : "Bearer {}".format(token)
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': "Bearer {}".format(token)
     }
 
     proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
@@ -321,5 +331,5 @@ if __name__ == '__main__':
         
         
     except Exception as err:
-        print("General error: " + str(err) + " check your secrets file and App Registration.") 
+        print("General error: {} check your secrets file and App Registration.".format(str(err))) 
         exit(1)

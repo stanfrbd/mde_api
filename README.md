@@ -78,7 +78,7 @@ $ python3 mde_api.py machines report
 
 ```
 $ chmod +x mde_api.py
-$ ./mde_api.py machines
+$ ./mde_api.py machines report
 ```
 
 ## Output for the report
@@ -96,9 +96,11 @@ Successfully created 2023-12-21-15_47_24-mde-api-results.xlsx
 
 ### machines
 
-`machines report`
+* `machines report`
 
-`machines offboard`
+* `machines offboard`
+
+Requests offboarding of a given machine using its `machineid`
 
 ```
 PS C:\Users\A107426\Local\mde_api> python .\mde_api.py machines offboard dc977c3c84ba18e1174affaff68e70cd81ffxxxx

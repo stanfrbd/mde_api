@@ -40,6 +40,32 @@ def get_token(secrets):
         aad_token = "invalid"
     return aad_token
 
+def get_proxies(secrets):
+    return { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
+
+def get_headers(token):
+    return { 
+        'Content-Type': 'application/json',
+        'Accept':'application/json',
+        'Authorization': f"Bearer {token}"
+    }
+
+def make_api_request(request_type, url, body=None):
+    secrets = read_secrets()
+    token = get_token(secrets)
+    headers = get_headers(token)
+    proxies = get_proxies(secrets)
+
+    if request_type.upper() == 'GET':
+        response = requests.get(url, headers=headers, proxies=proxies, verify=False)
+    elif request_type.upper() == 'POST':
+        response = requests.post(url, json=body, headers=headers, proxies=proxies, verify=False)
+    else:
+        print(f"Unsupported request type: {request_type}")
+        return None
+
+    return response
+
 def show_token():
     print("\nHere is your JWT token, test it here: https://jwt.ms/\n")
     print(get_token(read_secrets()))

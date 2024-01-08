@@ -1,14 +1,10 @@
 import json
-import requests
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-from utils.api_request import get_token, read_secrets
-
-# disable ssl warning in case of proxy like Zscaler which breaks ssl...
-requests.packages.urllib3.disable_warnings()
+from utils.api_request import make_api_request
 
 # Current date
 now = datetime.now()
@@ -94,28 +90,14 @@ def export_to_excel(data):
 # List Windows Servers onboarding status (sensor and onboarding)
 def get_windows_servers_onboarding_status():
 
-    secrets = read_secrets()
-    token = get_token(secrets)
-
-    headers = { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': "Bearer {}".format(token)
-    }
-
-    proxies = { 'http': secrets['proxyUrl'], 'https': secrets['proxyUrl'] }
-
-    # url = "https://api.securitycenter.windows.com/api/machines"
     # filter for Windows Servers only
     url = "https://api.securitycenter.windows.com/api/machines?$filter=startswith(osPlatform,'WindowsServer')"
-    response = requests.get(url, headers=headers, proxies=proxies, verify=False)
+    
+    response = make_api_request('GET', url)
+    
     json_response = json.loads(response.content)
     with open("machines.json", "w") as f:
         f.write(response.text)
-
-    # f = open("machines.json", "r")
-    # json_response = json.loads(f.read())
-    # f.close()
 
     api_results = []
     cpt_api_results = 0
@@ -125,7 +107,6 @@ def get_windows_servers_onboarding_status():
     cpt_unsupported = 0
     cpt_insufficientinfo = 0
     for machine in json_response["value"]:
-        #if machine["osPlatform"].__contains__("WindowsServer"):
         # print("{},{},{},{}".format(machine["computerDnsName"], machine["osPlatform"], machine["healthStatus"], machine["onboardingStatus"]))
 
         if machine["healthStatus"] == "Active" and machine["onboardingStatus"] == "Onboarded":

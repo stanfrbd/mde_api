@@ -3,9 +3,9 @@
 # Stanislas M. 2023-12-26
 
 """
-usage: mde_api.py [-h] {token,machines,indicators,vulnerabilities,users,software,alerts} ...
+This script is a command-line interface for performing various actions on machines, indicators, vulnerabilities, users, software, and alerts using the MDE API.
 
-List machines, offboard or token
+usage: mde_api.py [-h] {token,machines,indicators,vulnerabilities,users,software,alerts} ...
 
 positional arguments:
   {token,machines,indicators,vulnerabilities,users,software,alerts}
@@ -24,6 +24,10 @@ options:
 from utils.argument_parser import mde_api_parse_args, dispatch_command
 
 def main():
+    """
+    The main function of the script.
+    It parses the command-line arguments and dispatches the appropriate command.
+    """
     args = mde_api_parse_args()
     dispatch_command(args)
 

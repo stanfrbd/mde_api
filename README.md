@@ -15,21 +15,24 @@ pip install -r requirements.txt
 ## Usage
 
 ```
-usage: mde_api.py [-h] {token,machines,indicators,vulnerabilities,users,software} ...
+"""
+usage: mde_api.py [-h] {token,machines,indicators,vulnerabilities,users,software,alerts} ...
 
 List machines, offboard or token
 
 positional arguments:
-  {token,machines,indicators,vulnerabilities,users,software}
+  {token,machines,indicators,vulnerabilities,users,software,alerts}
     token               Get token
     machines            Perform actions on machines
     indicators          Perform actions on indicators
     vulnerabilities     Perform actions on vulnerabilities
     users               Perform actions on users
     software            Perform actions on software
+    alerts              Perform actions on alerts
 
 options:
   -h, --help            show this help message and exit
+"""
 ```
 
 # Quick start

@@ -4,7 +4,19 @@ from utils.api_request import make_api_request
 
 # Offboard a machine using its ID
 def offboard_machine(args):
+    """
+    Offboards a machine by sending a POST request to the Microsoft Security Center API.
 
+    Args:
+        args (object): The arguments passed to the function.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: If an error occurs during the offboarding request.
+
+    """
     machine_id = args.machineid
 
     body = {

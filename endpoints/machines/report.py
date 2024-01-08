@@ -11,6 +11,15 @@ now = datetime.now()
 today = now.strftime("%Y-%m-%d-%H_%M_%S")
 
 def export_to_csv(data):
+    """
+    Export the given data to a CSV file.
+
+    Args:
+        data (list): The data to be exported.
+
+    Returns:
+        None
+    """
     filename = today + "-mde-api-results.csv"
     with open(filename, "a") as f:
         f.write("machine,os,sensor_status,onboarding_status,verification")
@@ -18,6 +27,15 @@ def export_to_csv(data):
             f.write(",".join(row) + "\n")
 
 def export_to_excel(data):
+    """
+    Export data to an Excel file.
+
+    Args:
+        data (list): List of rows containing machine data.
+
+    Returns:
+        None
+    """
     filename = today + "-mde-api-results.xlsx"
     wb = Workbook()
     ws = wb.active
@@ -89,7 +107,12 @@ def export_to_excel(data):
 
 # List Windows Servers onboarding status (sensor and onboarding)
 def get_windows_servers_onboarding_status():
-
+    """
+    Retrieves the onboarding status of Windows servers from the Security Center API.
+    Filters for Windows Servers only and categorizes the onboarding status into different categories.
+    Prints the count of servers in each category and the total number of API results processed.
+    Exports the results to an Excel file.
+    """
     # filter for Windows Servers only
     url = "https://api.securitycenter.windows.com/api/machines?$filter=startswith(osPlatform,'WindowsServer')"
     

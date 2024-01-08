@@ -7,7 +7,8 @@ from utils.api_request import read_secrets, get_token
 requests.packages.urllib3.disable_warnings()
 
 # Offboard a machine using its ID
-def offboard_machine(machine_id):
+def offboard_machine(args):
+    machine_id = args.machineid
     secrets = read_secrets()
     token = get_token(secrets)
 

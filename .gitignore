@@ -3,3 +3,4 @@
 *.xlsx
 .env/
 *test*
+*__pycache__*

@@ -4,7 +4,7 @@ import inspect
 from utils.api_request import show_token
 from endpoints.machines.offboard import offboard_machine
 from endpoints.machines.report import get_windows_servers_onboarding_status
-from endpoints.tag.tag import add_tag, remove_tag
+from endpoints.machines.tag import add_tag, remove_tag
 
 def mde_api_parse_args():
 

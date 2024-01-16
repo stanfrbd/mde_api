@@ -4,6 +4,7 @@ import inspect
 from utils.api_request import show_token
 from endpoints.machines.offboard import offboard_machine
 from endpoints.machines.report import get_windows_servers_onboarding_status
+from endpoints.tag.tag import add_tag, remove_tag
 
 def mde_api_parse_args():
 
@@ -29,13 +30,27 @@ def mde_api_parse_args():
     isolate_parser = machines_subparsers.add_parser('isolate', help='Isolate machine')
     isolate_parser.add_argument('machineid', help='Machine ID')
 
+    # create the parser for the "tag" command
+    tag_parser = subparsers.add_parser('tag', help='Perform actions on tags')
+    tag_subparsers = tag_parser.add_subparsers(dest='subcommand')
+
+    tag_add_parser = tag_subparsers.add_parser('add', help='Add a tag to a machine')
+    tag_add_parser.add_argument('--value', help='Tag value')
+    tag_add_parser.add_argument('--machineid', help='Machine ID')
+    tag_add_parser.add_argument('--input-file', help='Input file')
+    
+    tag_remove_parser = tag_subparsers.add_parser('remove', help='Remove a tag from a machine')
+    tag_remove_parser.add_argument('--value', help='Tag value')
+    tag_remove_parser.add_argument('--machineid', help='Machine ID')
+    tag_remove_parser.add_argument('--input-file', help='Input file')
+
     # create the parser for the "indicators" command
     indicators_parser = subparsers.add_parser('indicators', help='Perform actions on indicators')
     indicators_subparsers = indicators_parser.add_subparsers(dest='subcommand')
 
     # create the parser for the "add" command
-    add_parser = indicators_subparsers.add_parser('add', help='Add an indicator')
-    add_parser.add_argument('indicator', help='Indicator')
+    indicators_add_parser = indicators_subparsers.add_parser('add', help='Add an indicator')
+    indicators_add_parser.add_argument('indicator', help='Indicator')
 
     # create the parser for the "vulnerabilities" command
     vulnerabilities_parser = subparsers.add_parser('vulnerabilities', help='Perform actions on vulnerabilities')
@@ -88,6 +103,7 @@ def dispatch_command(args):
         "software": handle_software_command,
         "alerts": handle_alerts_command,
         "indicators": handle_indicators_command,
+        "tag": handle_tag_command,
         "token": show_token
     }
 
@@ -103,7 +119,6 @@ def handle_machines_command(args):
         "report": get_windows_servers_onboarding_status,
         "offboard": offboard_machine
         # "isolate": # todo,
-        # "tag": # todo
     }
 
     # Get the function corresponding to the command, defaulting to None
@@ -127,3 +142,16 @@ def handle_indicators_command(args):
 
 def handle_alerts_command(args):
     print("Not yet implemented")
+
+def handle_tag_command(args):
+    sub_command_actions = {
+        "remove": remove_tag,
+        "add": add_tag,
+    }
+
+    # Get the function corresponding to the command, defaulting to None
+    action_function = sub_command_actions.get(args.subcommand)
+
+    # Call the function if it exists, otherwise parser will print an error
+    if action_function:
+        execute_function(action_function, args)

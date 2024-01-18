@@ -24,11 +24,12 @@ def mde_api_parse_args():
 
     # create the parser for the "offboard" command
     offboard_parser = machines_subparsers.add_parser('offboard', help='Offboard machine')
-    offboard_parser.add_argument('machineid', help='Machine ID')
+    offboard_parser.add_argument('--machineid', help='Machine ID')
+    offboard_parser.add_argument('--input-file', help='Input file')
 
     # create the parser for the "isolate" command
     isolate_parser = machines_subparsers.add_parser('isolate', help='Isolate machine')
-    isolate_parser.add_argument('machineid', help='Machine ID')
+    isolate_parser.add_argument('--machineid', help='Machine ID')
 
     # create the parser for the "tag" command
     tag_parser = subparsers.add_parser('tag', help='Perform actions on tags')
@@ -50,7 +51,7 @@ def mde_api_parse_args():
 
     # create the parser for the "add" command
     indicators_add_parser = indicators_subparsers.add_parser('add', help='Add an indicator')
-    indicators_add_parser.add_argument('indicator', help='Indicator')
+    indicators_add_parser.add_argument('--indicator', help='Indicator')
 
     # create the parser for the "vulnerabilities" command
     vulnerabilities_parser = subparsers.add_parser('vulnerabilities', help='Perform actions on vulnerabilities')
@@ -58,18 +59,18 @@ def mde_api_parse_args():
 
     # create the parser for the "get_devices" command
     get_devices_parser = vulnerabilities_subparsers.add_parser('get_devices', help='Get devices for a CVE')
-    get_devices_parser.add_argument('cveid', help='CVE ID')
+    get_devices_parser.add_argument('--cveid', help='CVE ID')
 
     # create the parser for the "users" command
     users_parser = subparsers.add_parser('users', help='Perform actions on users')
     users_subparsers = users_parser.add_subparsers(dest='subcommand')
 
     # create the parser for the "list" command
-    list_parser = users_subparsers.add_parser('list', help='List all users')
+    list_parser = users_subparsers.add_parser('--list', help='List all users')
 
     # create the parser for the "get" command
     get_parser = users_subparsers.add_parser('get', help='Get a user')
-    get_parser.add_argument('userUpn', help='User UPN')
+    get_parser.add_argument('--userUpn', help='User UPN')
 
     # create the parser for the "software" command
     software_parser = subparsers.add_parser('software', help='Perform actions on software')

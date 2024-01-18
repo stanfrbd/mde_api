@@ -17,7 +17,14 @@ def offboard_machine(args):
         Exception: If an error occurs during the offboarding request.
 
     """
-    machine_id = args.machineid
+
+    if args.input_file:
+        offboard_multiple_machines(args)
+        return
+    elif args.machineid:
+        offboard_unique_machine(args.machineid)
+    
+def offboard_unique_machine(machine_id):
 
     body = {
         'Comment': 'Offboard machine by automation',
@@ -36,3 +43,11 @@ def offboard_machine(args):
         f.write(response.text)
     
     print(json.dumps(json_response, indent=4))
+
+def offboard_multiple_machines(args):
+    with open(args.input_file, "r") as f:
+        machine_ids = [line.strip() for line in f]
+    
+    for machine_id in machine_ids:
+        offboard_unique_machine(machine_id)
+    
